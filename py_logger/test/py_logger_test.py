@@ -1,4 +1,4 @@
-from py_logger import PyLogger
+from py_logger.py_logger import PyLogger
 import unittest
 from mock import Mock, patch
 import logging
