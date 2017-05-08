@@ -1,0 +1,8 @@
+machine:
+  services:
+    - docker
+
+test:
+  override:
+    - docker build -t quay.io/winkapp/winkops:$CIRCLE_SHA1 .
+    - docker-compose run tests
