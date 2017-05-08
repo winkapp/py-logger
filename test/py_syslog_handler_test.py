@@ -38,7 +38,7 @@ class PySysLogHandler_test(unittest.TestCase):
         socket_patch.start()
 
         # make a handler to test, setting level and format to something known
-        handler = ShuttleSysLogHandler(('localhost', 514), socktype=socket.SOCK_STREAM,
+        handler = PySysLogHandler(('localhost', 514), socktype=socket.SOCK_STREAM,
                                        terminator='\n')
         handler.setLevel(logging.DEBUG)
         handler.setFormatter(logging.Formatter(TESTING_FORMAT_STRING))
@@ -68,7 +68,7 @@ class PySysLogHandler_test(unittest.TestCase):
         socket_patch.start()
 
         # make a handler to test, setting level and format to something known
-        handler = ShuttleSysLogHandler(('localhost', 514), socktype=socket.SOCK_STREAM,
+        handler = PySysLogHandler(('localhost', 514), socktype=socket.SOCK_STREAM,
                                        terminator='\n')
         handler.setLevel(logging.DEBUG)
         handler.setFormatter(logging.Formatter(TESTING_FORMAT_STRING))
@@ -100,7 +100,7 @@ class PySysLogHandler_test(unittest.TestCase):
         socket_patch.start()
 
         # make a handler to test, setting level and format to something known
-        handler = ShuttleSysLogHandler(('localhost', 514), socktype=socket.SOCK_DGRAM,
+        handler = PySysLogHandler(('localhost', 514), socktype=socket.SOCK_DGRAM,
                                        terminator='\n')
         handler.setLevel(logging.DEBUG)
         handler.setFormatter(logging.Formatter(TESTING_FORMAT_STRING))
@@ -128,7 +128,7 @@ class PySysLogHandler_test(unittest.TestCase):
         socket_patch.start()
 
         # make a handler to test, setting level and format to something known
-        handler = ShuttleSysLogHandler("/dev/log", socktype=socket.SOCK_DGRAM, terminator='\n')
+        handler = PySysLogHandler("/dev/log", socktype=socket.SOCK_DGRAM, terminator='\n')
         handler.setLevel(logging.DEBUG)
         handler.setFormatter(logging.Formatter(TESTING_FORMAT_STRING))
 
@@ -154,7 +154,7 @@ class PySysLogHandler_test(unittest.TestCase):
         socket_patch.start()
 
         # make a handler to test, setting level and format to something known
-        handler = ShuttleSysLogHandler("/dev/log", socktype=socket.SOCK_DGRAM, terminator='\n')
+        handler = PySysLogHandler("/dev/log", socktype=socket.SOCK_DGRAM, terminator='\n')
         handler.setLevel(logging.DEBUG)
         handler.setFormatter(logging.Formatter(TESTING_FORMAT_STRING))
 
