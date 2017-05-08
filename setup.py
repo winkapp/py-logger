@@ -8,5 +8,5 @@ setup(
     packages=['pylogger', 'pylogger.test'],
     url='https://github.com/winkapp/pylogger',
     description='a python logging library',
-    long_description=open('README.txt').read()
+    long_description=open('Readme.md').read()
 )
