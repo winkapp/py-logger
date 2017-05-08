@@ -1,0 +1,5 @@
+tests:
+  build: .
+  command: pytest
+  volumes:
+    - ./:/usr/app
