@@ -1,4 +1,4 @@
-from lib.py_syslog_handler import PySysLogHandler
+from py_syslog_handler import PySysLogHandler
 import unittest
 from mock import Mock, patch
 import logging
