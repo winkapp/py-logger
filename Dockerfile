@@ -1,7 +1,9 @@
 FROM python:2.7.13-alpine
 
-RUN pip install -U pytest
-
 WORKDIR /usr/app
+
+COPY requirements-test.txt /usr/app
+
+RUN pip install -r requirements-test.txt
 
 COPY . /usr/app
