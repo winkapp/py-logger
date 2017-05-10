@@ -24,6 +24,7 @@ class PySysLogHandler_test(unittest.TestCase):
         self.test_logger.setLevel(logging.DEBUG)
 
     def tearDown(self):
+        print self.test_logger.handlers
         # Remove any handlers after each test
         map(self.test_logger.removeHandler, self.test_logger.handlers)
 
