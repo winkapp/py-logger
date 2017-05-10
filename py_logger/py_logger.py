@@ -3,13 +3,6 @@ import os
 import socket
 from py_syslog_handler import PySysLogHandler
 
-# always log in this format.
-
-TCP_LOGGING_HOST = os.environ.get('SYSLOG_HOST', 'localhost')
-TCP_LOGGING_PORT = int(os.environ.get('SYSLOG_PORT', logging.handlers.SYSLOG_TCP_PORT))
-LOG_LINE_TERMINATOR = '\n'
-
-
 class PyLogger:
     pyLogger = None
 
@@ -21,22 +14,28 @@ class PyLogger:
 
     @classmethod
     def getLogger(cls, method, app_name):
-        LOGGING_FORMAT = '%(asctime)s ' + socket.gethostname() + app_name + '%(message)s'
+        LOGGING_FORMAT = "%%(asctime)s %s %s %%(message)s" % (socket.gethostname(), app_name)
         # first do the basic config to the root logger
         logging.basicConfig(format=LOGGING_FORMAT, level=logging.INFO)
         # get a handle to this logger
         logger = logging.getLogger() # no args = root logger
         print "method is %s" % method
         if method == 'tcp':
+            # get tcp logger config from the environment
+            tcp_logging_host = os.environ.get('SYSLOG_HOST', 'localhost')
+            tcp_logging_port = int(os.environ.get('SYSLOG_PORT', logging.handlers.SYSLOG_TCP_PORT))
+            log_line_terminator = os.environ.get('SYSLOG_LINE_TERMINATOR', '\n')
             # this line will go to the stdout handler since we
             # haven't added a socket one yet
             logging.info("Setting up tcp handler %s:%s" %
-                         (TCP_LOGGING_HOST, TCP_LOGGING_PORT))
+                         (tcp_logging_host, tcp_logging_host))
             # in tcp mode, additionally add a SysLogHandler
             # pass (host, port) as tuple, specify to use TCP socket
-            tcpHandler = PySysLogHandler((TCP_LOGGING_HOST, TCP_LOGGING_PORT),
+            print "TCP_LOGGING_HOST: %s" % tcp_logging_host
+            print "TCP_LOGGING_PORT: %s" % tcp_logging_port
+            tcpHandler = PySysLogHandler(address=(tcp_logging_host, tcp_logging_port),
                                               socktype=socket.SOCK_STREAM,
-                                              terminator=LOG_LINE_TERMINATOR)
+                                              terminator=log_line_terminator)
             tcpHandler.setLevel(logging.INFO)
             tcpHandler.setFormatter(logging.Formatter(LOGGING_FORMAT))
             # attach it to the root logger
@@ -53,9 +52,8 @@ class PyLogger:
         if cls.pyLogger == None:
             if os.environ.get('TCP_SYSLOG_LOGGING') is 'true':
                 method = 'tcp'
-            print "Getting spark logging, method is %s" % method
+            print "Getting %s logger" % method
             cls.pyLogger = cls.getLogger(method, app_name)
-
         return cls.pyLogger
 
     def getMlPrefix(self):

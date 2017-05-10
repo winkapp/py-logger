@@ -23,6 +23,7 @@ class PySysLogHandler(SysLogHandler):
         back to socket.SOCK_STREAM. Lines will be terminated by terminator when
         emitted; by default they are null-terminated.
         """
+        print address
         SysLogHandler.__init__(self, address=address, facility=facility, socktype=socktype)
         self.terminator = terminator
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)

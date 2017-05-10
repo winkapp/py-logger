@@ -1,5 +1,12 @@
+logger:
+  image: alpine
+  command: nc -kl 514
+  ports:
+    - "514:514"
 tests:
   build: .
   command: pytest
   volumes:
     - ./:/usr/app
+  links:
+    - logger
