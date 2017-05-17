@@ -11,14 +11,8 @@ class PyLogger_test(unittest.TestCase):
   def setUp(self):
     os.environ['SYSLOG_HOST'] = 'logger'
     os.environ['SYSLOG_PORT'] = '514'
-    self.test_py_logger = PyLogger.getPyLogger()
-    self.test_py_logger.setLevel(logging.DEBUG)
     expected_host_name = os.getenv('HOSTNAME')
     self.expected_format = "%%(asctime)s %s app %%(message)s" % expected_host_name
-
-  def tearDown(self):
-    # Remove any handlers after each test
-    map(self.test_py_logger.removeHandler, self.test_py_logger.handlers)
 
   def start_patches(self, patches_dict):
     # Start patches
@@ -71,9 +65,13 @@ class PyLogger_test(unittest.TestCase):
     #   setLevel
     set_level_mock = Mock()
     patches_dict['set_level_patch'] = patch('py_logger.py_syslog_handler.PySysLogHandler.setLevel', set_level_mock)
+    #   logging.formatter
+    formatter_mock = Mock()
+    patches_dict['formatter_patch'] = patch('logging.Formatter', formatter_mock)
     #   setFormatter
-    set_formater_mock = Mock()
-    patches_dict['set_formater_patch'] = patch('py_logger.py_syslog_handler.PySysLogHandler.setFormatter', set_formater_mock)
+    set_formatter_mock = Mock()
+    set_formatter_class_mock = Mock(set_formatter_mock)
+    patches_dict['set_formatter_patch'] = patch('py_logger.py_syslog_handler.PySysLogHandler.setFormatter', set_formatter_class_mock)
     #   emit
     emit_mock = Mock()
     patches_dict['emit_patch'] = patch('py_logger.py_syslog_handler.PySysLogHandler.emit', emit_mock)
@@ -90,18 +88,35 @@ class PyLogger_test(unittest.TestCase):
 
     # make sure things happened
     set_level_mock.assert_called_once_with(logging.INFO)
-    set_formater_mock.assert_called_once_with(logging.Formater(self.expected_format))
-    pysyslog_handler_mock.assert_called_once_with(('test_host', '545'),
-                                                   sockettype=socket.SOCK_STREAM,
-                                                   terminator= '\n')
-    add_handler_mock.assert_called_once_with('')
-    connect_mock.assert_called_once_with('')
+    formatter_mock.assert_called_once_with(self.expected_format, None)
+    set_formatter_class_mock.assert_called_once
+    add_handler_mock.assert_called
+    connect_mock.assert_called_once
 
     # stop patches
     self.start_patches(patches_dict)
 
-    os.environ['SYSLOG_HOST'] = None
-    os.environ['SYSLOG_PORT'] = None
+  def test_get_tcp_logger_handler(self):
+    # py_syslog_handler
+    # mock
+    py_syslog_handler_mock = Mock()
+    py_syslog_handler_class_mock = Mock(return_value=py_syslog_handler_mock)
+    py_syslog_handler_patch = patch('py_logger.py_syslog_handler.PySysLogHandler', py_syslog_handler_class_mock)
+
+    # patch
+    py_syslog_handler_patch.start()
+
+    # do stuff
+    PyLogger.getLogger('tcp', 'app')
+
+    # assert stuff
+    py_syslog_handler_mock.assert_called_once_with(('test_host', '545'),
+                                                   sockettype=socket.SOCK_STREAM,
+                                                   terminator= '\n')
+    # stop patch
+    py_syslog_handler_patch.stop()
+
 
 if __name__ == '__main__':
     unittest.main()
+#

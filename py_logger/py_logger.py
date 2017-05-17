@@ -14,34 +14,50 @@ class PyLogger:
 
     @classmethod
     def getLogger(cls, method, app_name):
-        LOGGING_FORMAT = "%%(asctime)s %s %s %%(message)s" % (socket.gethostname(), app_name)
-        # first do the basic config to the root logger
-        logging.basicConfig(format=LOGGING_FORMAT, level=logging.INFO)
-        # get a handle to this logger
-        logger = logging.getLogger() # no args = root logger
+        logging_format = "%%(asctime)s %s %s %%(message)s" % (socket.gethostname(), app_name)
+
         print "method is %s" % method
         if method == 'tcp':
-            # get tcp logger config from the environment
-            tcp_logging_host = os.environ.get('SYSLOG_HOST', 'localhost')
-            tcp_logging_port = int(os.environ.get('SYSLOG_PORT', logging.handlers.SYSLOG_TCP_PORT))
-            log_line_terminator = os.environ.get('SYSLOG_LINE_TERMINATOR', '\n')
-            # this line will go to the stdout handler since we
-            # haven't added a socket one yet
-            logging.info("Setting up tcp handler %s:%s" %
-                         (tcp_logging_host, tcp_logging_host))
-            # in tcp mode, additionally add a SysLogHandler
-            # pass (host, port) as tuple, specify to use TCP socket
-            print "TCP_LOGGING_HOST: %s" % tcp_logging_host
-            print "TCP_LOGGING_PORT: %s" % tcp_logging_port
-            tcpHandler = PySysLogHandler(address=(tcp_logging_host, tcp_logging_port),
-                                              socktype=socket.SOCK_STREAM,
-                                              terminator=log_line_terminator)
-            tcpHandler.setLevel(logging.INFO)
-            tcpHandler.setFormatter(logging.Formatter(LOGGING_FORMAT))
-            # attach it to the root logger
-            logger.addHandler(tcpHandler)
+            # first do the basic config of the logger
+            logging.basicConfig(format=logging_format, level=logging.INFO)
+            # get a handle to this logger
+            logger = logging.getLogger() # no args = root logger
+            # config and add a TCP logger handler
+            handler = cls.tcpLoggerHandler()
+            print 'Adding handler'
+            logger.addHandler(handler)
+        else:
+            # The basicConfig is done separately for each type of logger such that things can be easily tested
+            # It's not great that it's definited in two places
+            # TODO: find a way to test this while setting for all loggers, ran into issue where addHandler was
+            # called twice due to it being called with basicConfig and when the tcp handler is added above
+            print 'setting up basicConfig'
+            logging.basicConfig(format=logging_format, level=logging.INFO)
+            # Get a root logger
+            logger = logging.getLogger() # no args = root logger
+
         logging.info("Logging configured") # smoke test
         return logger # return it in case we want to do stuff to it.
+
+    @classmethod
+    def tcpLoggerHandler(cls):
+        # get tcp logger config from the environment
+        tcp_logging_host = os.environ.get('SYSLOG_HOST', 'localhost')
+        tcp_logging_port = int(os.environ.get('SYSLOG_PORT', logging.handlers.SYSLOG_TCP_PORT))
+        log_line_terminator = os.environ.get('SYSLOG_LINE_TERMINATOR', '\n')
+        # this line will go to the stdout handler since we
+        # haven't added a socket one yet
+        logging.info("Setting up tcp handler %s:%s" %
+                     (tcp_logging_host, tcp_logging_host))
+        # in tcp mode, additionally add a SysLogHandler
+        # pass (host, port) as tuple, specify to use TCP socket
+        print 'getting handler'
+        tcpHandler = PySysLogHandler(address=(tcp_logging_host, tcp_logging_port),
+                                          socktype=socket.SOCK_STREAM,
+                                          terminator=log_line_terminator)
+        tcpHandler.setLevel(logging.INFO)
+        # return handler
+        return tcpHandler
 
     def createJsonString(self, log_type, logDict):
         logDict['log_type'] = log_type
