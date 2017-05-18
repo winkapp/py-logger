@@ -4,7 +4,7 @@ import socket
 from py_syslog_handler import PySysLogHandler
 
 class PyLogger:
-    pyLogger = None
+    pyLoggers = {}
 
     def __init__(self, method='stdout'):
         print ("Loggin Method: %s" % method)
@@ -65,12 +65,12 @@ class PyLogger:
 
     @classmethod
     def getPyLogger(cls, method='stdout', app_name='app'):
-        if cls.pyLogger == None:
+        if cls.pyLoggers.get(method) == None:
             if os.environ.get('TCP_SYSLOG_LOGGING') is 'true':
                 method = 'tcp'
             print "Getting %s logger" % method
-            cls.pyLogger = cls.getLogger(method, app_name)
-        return cls.pyLogger
+            cls.pyLoggers[method] = cls.getLogger(method, app_name)
+        return cls.pyLoggers[method]
 
     def getMlPrefix(self):
         return 'mlAnalytics:'

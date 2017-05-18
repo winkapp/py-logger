@@ -1,8 +1,8 @@
 logger:
   image: alpine
-  command: nc -kl 514
+  command: nc -lk -p 515
   ports:
-    - "514:514"
+    - "515:515"
 tests:
   build: .
   command: pytest
@@ -10,3 +10,6 @@ tests:
     - ./:/usr/app
   links:
     - logger
+  environment:
+    - SYSLOG_HOST=logger
+    - SYSLOG_PORT=515
