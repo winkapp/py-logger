@@ -24,14 +24,13 @@ class PyLogger:
             logger = logging.getLogger() # no args = root logger
             # config and add a TCP logger handler
             handler = cls.tcpLoggerHandler()
-            print 'Adding handler'
+            handler.setFormatter
             logger.addHandler(handler)
         else:
             # The basicConfig is done separately for each type of logger such that things can be easily tested
             # It's not great that it's definited in two places
             # TODO: find a way to test this while setting for all loggers, ran into issue where addHandler was
             # called twice due to it being called with basicConfig and when the tcp handler is added above
-            print 'setting up basicConfig'
             logging.basicConfig(format=logging_format, level=logging.INFO)
             # Get a root logger
             logger = logging.getLogger() # no args = root logger
@@ -51,7 +50,6 @@ class PyLogger:
                      (tcp_logging_host, tcp_logging_host))
         # in tcp mode, additionally add a SysLogHandler
         # pass (host, port) as tuple, specify to use TCP socket
-        print 'getting handler'
         tcpHandler = PySysLogHandler(address=(tcp_logging_host, tcp_logging_port),
                                           socktype=socket.SOCK_STREAM,
                                           terminator=log_line_terminator)

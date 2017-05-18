@@ -75,10 +75,6 @@ class PyLogger_test(unittest.TestCase):
     #   logging.formatter
     formatter_mock = Mock()
     patches_dict['formatter_patch'] = patch('logging.Formatter', formatter_mock)
-    #   setFormatter
-    set_formatter_mock = Mock()
-    set_formatter_class_mock = Mock(set_formatter_mock)
-    patches_dict['set_formatter_patch'] = patch('py_logger.py_syslog_handler.PySysLogHandler.setFormatter', set_formatter_class_mock)
     #   emit
     emit_mock = Mock()
     patches_dict['emit_patch'] = patch('py_logger.py_syslog_handler.PySysLogHandler.emit', emit_mock)
@@ -96,7 +92,7 @@ class PyLogger_test(unittest.TestCase):
     # make sure things happened
     set_level_mock.assert_called_once_with(logging.INFO)
     formatter_mock.assert_called_once_with(self.expected_format, None)
-    set_formatter_class_mock.assert_called_once
+
     add_handler_mock.assert_called
     connect_mock.assert_called_once
 
@@ -104,8 +100,8 @@ class PyLogger_test(unittest.TestCase):
     self.stop_patches(patches_dict)
 
   def test_get_tcp_logger_handler(self):
-    # py_syslog_handler
     # mock
+    # py_syslog_handler
     py_syslog_handler_mock = Mock()
     py_syslog_handler_class_mock = Mock(return_value=py_syslog_handler_mock)
     py_syslog_handler_patch = patch('py_logger.py_syslog_handler.PySysLogHandler', py_syslog_handler_class_mock)
@@ -115,19 +111,29 @@ class PyLogger_test(unittest.TestCase):
     socket_class_mock = Mock(return_value=connect_mock)
     connect_patch = patch('socket.socket', socket_class_mock)
 
+    #   setFormatter
+    set_formatter_mock = Mock()
+    set_formatter_class_mock = Mock(set_formatter_mock)
+    set_formatter_patch = patch('py_logger.py_syslog_handler.PySysLogHandler.setFormatter', set_formatter_class_mock)
+
+
     # patch
     py_syslog_handler_patch.start()
     connect_patch.start()
+    set_formatter_patch.start()
 
     # do stuff
-    PyLogger.getLogger('tcp', 'app')
+    logger = PyLogger.getLogger('tcp', 'app')
 
     # assert stuff
     py_syslog_handler_mock.assert_called_once
+    set_formatter_class_mock.assert_called_once_with(self.expected_format)
+    assert(logger.handlers[0].formatter._fmt, 'test')
 
     # stop patch
     py_syslog_handler_patch.stop()
     connect_patch.stop()
+    set_formatter_patch.stop()
 
 
 if __name__ == '__main__':
