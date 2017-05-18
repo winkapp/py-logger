@@ -14,6 +14,13 @@ class PyLogger_test(unittest.TestCase):
     expected_host_name = os.getenv('HOSTNAME')
     self.expected_format = "%%(asctime)s %s app %%(message)s" % expected_host_name
 
+  def tearDown(self):
+    print logging.handlers
+    logger = PyLogger.getLogger('stdout', 'app')
+    print logger.handlers
+    # Remove any handlers after each test
+    map(logger.removeHandler, logger.handlers)
+
   def start_patches(self, patches_dict):
     # Start patches
     for p in patches_dict:
@@ -94,7 +101,7 @@ class PyLogger_test(unittest.TestCase):
     connect_mock.assert_called_once
 
     # stop patches
-    self.start_patches(patches_dict)
+    self.stop_patches(patches_dict)
 
   def test_get_tcp_logger_handler(self):
     # py_syslog_handler
@@ -103,20 +110,25 @@ class PyLogger_test(unittest.TestCase):
     py_syslog_handler_class_mock = Mock(return_value=py_syslog_handler_mock)
     py_syslog_handler_patch = patch('py_logger.py_syslog_handler.PySysLogHandler', py_syslog_handler_class_mock)
 
+    # connect
+    connect_mock = Mock()
+    socket_class_mock = Mock(return_value=connect_mock)
+    connect_patch = patch('socket.socket', socket_class_mock)
+
     # patch
     py_syslog_handler_patch.start()
+    connect_patch.start()
 
     # do stuff
     PyLogger.getLogger('tcp', 'app')
 
     # assert stuff
-    py_syslog_handler_mock.assert_called_once_with(('test_host', '545'),
-                                                   sockettype=socket.SOCK_STREAM,
-                                                   terminator= '\n')
+    py_syslog_handler_mock.assert_called_once
+
     # stop patch
     py_syslog_handler_patch.stop()
+    connect_patch.stop()
 
 
 if __name__ == '__main__':
     unittest.main()
-#
