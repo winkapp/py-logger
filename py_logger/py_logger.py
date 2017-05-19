@@ -47,7 +47,7 @@ class PyLogger:
         # this line will go to the stdout handler since we
         # haven't added a socket one yet
         logging.info("Setting up tcp handler %s:%s" %
-                     (tcp_logging_host, tcp_logging_host))
+                     (tcp_logging_host, tcp_logging_port))
         # in tcp mode, additionally add a SysLogHandler
         # pass (host, port) as tuple, specify to use TCP socket
         tcpHandler = PySysLogHandler(address=(tcp_logging_host, tcp_logging_port),
