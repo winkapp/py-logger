@@ -9,17 +9,13 @@ import socket
 
 class PyLogger_test(unittest.TestCase):
   def setUp(self):
-    os.environ['SYSLOG_HOST'] = 'logger'
-    os.environ['SYSLOG_PORT'] = '514'
+    # os.environ['SYSLOG_HOST'] = 'logger'
+    # os.environ['SYSLOG_PORT'] = '515'
     expected_host_name = os.getenv('HOSTNAME')
     self.expected_format = "%%(asctime)s %s app %%(message)s" % expected_host_name
 
   def tearDown(self):
-    print logging.handlers
-    logger = PyLogger.getLogger('stdout', 'app')
-    print logger.handlers
-    # Remove any handlers after each test
-    map(logger.removeHandler, logger.handlers)
+    PyLogger.pyLoggers = {}
 
   def start_patches(self, patches_dict):
     # Start patches
@@ -32,35 +28,32 @@ class PyLogger_test(unittest.TestCase):
         patches_dict[p].stop()
 
   def test_get_stdout_logger(self):
-    expected_message = 'Logging configured'
+    expected_message = 'testing stdout logger'
 
     patches_dict = {}
     basic_config_mock = Mock()
     patches_dict['basic_config_patch'] = patch('logging.basicConfig', basic_config_mock)
     #   getLogger
-    get_logger_mock = Mock()
+    logger_mock = Mock()
+    get_logger_mock = Mock(return_value=logger_mock)
     patches_dict['get_logger_patch'] = patch('logging.getLogger', get_logger_mock)
-    #   info
-    info_mock = Mock()
-    patches_dict['info_patch'] = patch('logging.info', info_mock)
 
     # start patches
     self.start_patches(patches_dict)
 
     # call method
-    PyLogger.getLogger('stdout', 'app')
+    logger = PyLogger.getLogger('stdout', 'app')
+    logger.info('testing stdout logger')
 
     # make sure things happened
     basic_config_mock.assert_called_once_with(format=self.expected_format, level=logging.INFO)
-    info_mock.assert_called_once_with(expected_message)
+    logger_mock.info.assert_called_once_with(expected_message)
     get_logger_mock.assert_called_once
 
     # stop patches
     self.stop_patches(patches_dict)
 
   def test_get_tcp_logger(self):
-    expected_message = ''
-
     patches_dict = {}
     #   info
     info_mock = Mock()
@@ -111,29 +104,40 @@ class PyLogger_test(unittest.TestCase):
     socket_class_mock = Mock(return_value=connect_mock)
     connect_patch = patch('socket.socket', socket_class_mock)
 
-    #   setFormatter
-    set_formatter_mock = Mock()
-    set_formatter_class_mock = Mock(set_formatter_mock)
-    set_formatter_patch = patch('py_logger.py_syslog_handler.PySysLogHandler.setFormatter', set_formatter_class_mock)
-
-
     # patch
     py_syslog_handler_patch.start()
     connect_patch.start()
-    set_formatter_patch.start()
 
     # do stuff
     logger = PyLogger.getLogger('tcp', 'app')
 
     # assert stuff
     py_syslog_handler_mock.assert_called_once
-    set_formatter_class_mock.assert_called_once_with(self.expected_format)
-    assert(logger.handlers[0].formatter._fmt, 'test')
 
     # stop patch
     py_syslog_handler_patch.stop()
     connect_patch.stop()
-    set_formatter_patch.stop()
+
+  def test_tcp_socket_send(self):
+    expected_message = 'time app_name conatiner testing tcp socket send'
+
+    # mock
+    socket_mock = Mock()
+    socket_constructor_mock = Mock(return_value=socket_mock)
+    socket_patch = patch('socket.socket', socket_constructor_mock)
+
+    # patch
+    socket_patch.start()
+
+    # do stuff
+    logger = PyLogger.getLogger('tcp', 'app')
+    logger.info('testing tcp socket send')
+
+    # make sure stuff happened
+    socket_mock.sendall.assert_called_once_with(expected_message)
+
+    # stop patch
+    socket_patch.stop()
 
 
 if __name__ == '__main__':

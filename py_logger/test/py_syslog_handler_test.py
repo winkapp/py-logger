@@ -26,7 +26,8 @@ class PySysLogHandler_test(unittest.TestCase):
     def tearDown(self):
         print self.test_logger.handlers
         # Remove any handlers after each test
-        map(self.test_logger.removeHandler, self.test_logger.handlers)
+        if not isinstance(self.test_logger.handlers, Mock):
+            map(self.test_logger.removeHandler, self.test_logger.handlers)
 
     def test_emit(self):
         # mock a socket we can watch

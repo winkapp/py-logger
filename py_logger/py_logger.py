@@ -35,7 +35,6 @@ class PyLogger:
             # Get a root logger
             logger = logging.getLogger() # no args = root logger
 
-        logging.info("Logging configured") # smoke test
         return logger # return it in case we want to do stuff to it.
 
     @classmethod
