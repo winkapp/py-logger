@@ -56,7 +56,7 @@ class PyLogger:
         return json.dumps(logDict)
 
     @classmethod
-    def getPyLogger(cls, method='stdout', app_name='app'):
+    def getPyLogger(cls, app_name, method='stdout'):
         if cls.pyLoggers.get(method) == None:
             if os.environ.get('TCP_SYSLOG_LOGGING') is 'true':
                 method = 'tcp'
