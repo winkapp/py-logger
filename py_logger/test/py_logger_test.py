@@ -4,18 +4,22 @@ import unittest
 import os
 from mock import Mock
 from mock import patch
+from freezegun import freeze_time
 import logging
 import socket
 
+
+
 class PyLogger_test(unittest.TestCase):
   def setUp(self):
-    # os.environ['SYSLOG_HOST'] = 'logger'
-    # os.environ['SYSLOG_PORT'] = '515'
-    expected_host_name = os.getenv('HOSTNAME')
-    self.expected_format = "%%(asctime)s %s app %%(message)s" % expected_host_name
+    self.freezer = freeze_time("2017-05-20 03:21:34")
+    self.freezer.start()
+    self.expected_host_name = os.getenv('HOSTNAME')
+    self.expected_format = " %%(asctime)s %s app %%(message)s" % self.expected_host_name
 
   def tearDown(self):
     PyLogger.pyLoggers = {}
+    self.freezer.stop()
 
   def start_patches(self, patches_dict):
     # Start patches
@@ -114,7 +118,7 @@ class PyLogger_test(unittest.TestCase):
     connect_patch.stop()
 
   def test_tcp_socket_send(self):
-    expected_message = 'time app_name conatiner testing tcp socket send'
+    expected_message = "<14> 2017-05-20 03:21:34,000 %s app testing tcp socket send\n" % self.expected_host_name
 
     # mock
     socket_mock = Mock()
@@ -129,7 +133,7 @@ class PyLogger_test(unittest.TestCase):
     logger.info('testing tcp socket send')
 
     # make sure stuff happened
-    socket_mock.sendall.assert_called_once_with(self.expected_format + expected_message)
+    socket_mock.sendall.assert_called_once_with(expected_message)
 
     # stop patch
     socket_patch.stop()

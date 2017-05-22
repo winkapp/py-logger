@@ -13,7 +13,7 @@ class PyLogger:
 
     @classmethod
     def getLogger(cls, method, app_name):
-        logging_format = "%%(asctime)s %s %s %%(message)s" % (socket.gethostname(), app_name)
+        logging_format = " %%(asctime)s %s %s %%(message)s" % (socket.gethostname(), app_name)
         # Configure root logger
         logging.basicConfig(format=logging_format, level=logging.INFO)
 
@@ -24,11 +24,12 @@ class PyLogger:
             # config and add a TCP logger handler
             handler = cls.tcpLoggerHandler()
             # get formatter
-            # formatter = logging.Formatter(fmt=logging_format)
-            handler.setFormatter #(formatter)
+            formatter = logging.Formatter(fmt=logging_format)
+            handler.setFormatter(formatter)
             logger.addHandler(handler)
         else:
-            logger = logging.getLogger() # no args = root logger
+            # get a handle to the root logger
+            logger = logging.getLogger()
 
         return logger # return it in case we want to do stuff to it.
 
