@@ -17,7 +17,6 @@ class PyLogger:
         # Configure root logger
         logging.basicConfig(format=logging_format, level=logging.INFO)
 
-        print "method is %s" % method
         if method == 'tcp':
             # get a handle to the root logger
             logger = logging.getLogger() # no args = root logger
