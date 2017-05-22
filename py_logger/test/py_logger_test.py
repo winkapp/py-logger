@@ -65,9 +65,6 @@ class PyLogger_test(unittest.TestCase):
     #   setLevel
     set_level_mock = Mock()
     patches_dict['set_level_patch'] = patch('py_logger.py_syslog_handler.PySysLogHandler.setLevel', set_level_mock)
-    #   logging.formatter
-    formatter_mock = Mock()
-    patches_dict['formatter_patch'] = patch('logging.Formatter', formatter_mock)
     #   emit
     emit_mock = Mock()
     patches_dict['emit_patch'] = patch('py_logger.py_syslog_handler.PySysLogHandler.emit', emit_mock)
@@ -84,8 +81,6 @@ class PyLogger_test(unittest.TestCase):
 
     # make sure things happened
     set_level_mock.assert_called_once_with(logging.INFO)
-    formatter_mock.assert_called_once_with(self.expected_format, None)
-
     add_handler_mock.assert_called
     connect_mock.assert_called_once
 
@@ -134,7 +129,7 @@ class PyLogger_test(unittest.TestCase):
     logger.info('testing tcp socket send')
 
     # make sure stuff happened
-    socket_mock.sendall.assert_called_once_with(expected_message)
+    socket_mock.sendall.assert_called_once_with(self.expected_format + expected_message)
 
     # stop patch
     socket_patch.stop()

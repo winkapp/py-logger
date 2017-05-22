@@ -7,7 +7,6 @@ class PyLogger:
     pyLoggers = {}
 
     def __init__(self, method='stdout'):
-        print ("Loggin Method: %s" % method)
         self.version = '.1'
         # Check the environment to turn on remote syslog logging
         self.rootLogger = self.getLogger(method)
@@ -15,24 +14,20 @@ class PyLogger:
     @classmethod
     def getLogger(cls, method, app_name):
         logging_format = "%%(asctime)s %s %s %%(message)s" % (socket.gethostname(), app_name)
+        # Configure root logger
+        logging.basicConfig(format=logging_format, level=logging.INFO)
 
         print "method is %s" % method
         if method == 'tcp':
-            # first do the basic config of the logger
-            logging.basicConfig(format=logging_format, level=logging.INFO)
-            # get a handle to this logger
+            # get a handle to the root logger
             logger = logging.getLogger() # no args = root logger
             # config and add a TCP logger handler
             handler = cls.tcpLoggerHandler()
-            handler.setFormatter
+            # get formatter
+            # formatter = logging.Formatter(fmt=logging_format)
+            handler.setFormatter #(formatter)
             logger.addHandler(handler)
         else:
-            # The basicConfig is done separately for each type of logger such that things can be easily tested
-            # It's not great that it's definited in two places
-            # TODO: find a way to test this while setting for all loggers, ran into issue where addHandler was
-            # called twice due to it being called with basicConfig and when the tcp handler is added above
-            logging.basicConfig(format=logging_format, level=logging.INFO)
-            # Get a root logger
             logger = logging.getLogger() # no args = root logger
 
         return logger # return it in case we want to do stuff to it.
