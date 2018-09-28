@@ -1,4 +1,5 @@
 FROM python:2.7.13-alpine
+LABEL maintainer "Jonathan Hosmer <jonathan@wink.com>"
 
 WORKDIR /usr/app
 

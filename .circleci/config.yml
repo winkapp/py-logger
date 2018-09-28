@@ -1,0 +1,17 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/winkapp/py-logger
+    machine:
+      enabled: true
+    steps:
+      - restore_cache:
+          keys:
+            - v1-git-{{ .Branch }}-{{ .Revision }}
+            - v1-git-{{ .Branch }}-
+      - checkout
+      - save_cache:
+          key: v1-git-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - ".git"
+      - run: docker-compose run tests
