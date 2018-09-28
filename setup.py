@@ -7,6 +7,6 @@ setup(
     author_email='gabe@wink.com',
     packages=['py_logger', 'py_logger.test'],
     url='https://github.com/winkapp/pylogger',
-    description='a python logging library',
-    long_description=open('Readme.md').read()
+    description='A python logging library',
+    long_description=open('README.md').read()
 )
