@@ -14,12 +14,4 @@ jobs:
           key: v1-git-{{ .Branch }}-{{ .Revision }}
           paths:
             - ".git"
-      # - run:
-      #     name: Build Main Docker Image
-      #     command: |
-      #       docker build \
-      #           --rm=false \
-      #           -t quay.io/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1 \
-      #           -t quay.io/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:$CIRCLE_BRANCH \
-      #           .
       - run: docker-compose run tests
